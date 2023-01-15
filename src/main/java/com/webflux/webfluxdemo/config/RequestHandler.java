@@ -1,5 +1,6 @@
 package com.webflux.webfluxdemo.config;
 
+import com.webflux.webfluxdemo.dto.MultiplyRequestDTO;
 import com.webflux.webfluxdemo.dto.Response;
 import com.webflux.webfluxdemo.service.ReactiveMathService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,7 @@ public class RequestHandler {
 
     @Autowired
     private ReactiveMathService reactiveMathService;
-    
+
     public Mono<ServerResponse> squareHandler(ServerRequest serverRequest) {
         int input = Integer.parseInt(serverRequest.pathVariable("input"));
         Mono<Response> responseMono = this.reactiveMathService.findSquare(input);
@@ -35,5 +36,10 @@ public class RequestHandler {
         return ServerResponse.ok()
                 .contentType(MediaType.TEXT_EVENT_STREAM)
                 .body(responseFlux, Response.class);
+    }
+    public Mono<ServerResponse> multiplyHandler(ServerRequest serverRequest) {
+        Mono<MultiplyRequestDTO> requestDTOMono = serverRequest.bodyToMono(MultiplyRequestDTO.class);
+        Mono<Response> responseMono = this.reactiveMathService.multiply(requestDTOMono);
+        return ServerResponse.ok().body(responseMono, Response.class);
     }
 }
