@@ -1,5 +1,7 @@
 package com.webflux.webfluxdemo.config;
 
+import com.webflux.webfluxdemo.dto.InputFailedValidationResponse;
+import com.webflux.webfluxdemo.dto.InputValidationException;
 import com.webflux.webfluxdemo.dto.MultiplyRequestDTO;
 import com.webflux.webfluxdemo.dto.Response;
 import com.webflux.webfluxdemo.service.ReactiveMathService;
@@ -37,9 +39,19 @@ public class RequestHandler {
                 .contentType(MediaType.TEXT_EVENT_STREAM)
                 .body(responseFlux, Response.class);
     }
+
     public Mono<ServerResponse> multiplyHandler(ServerRequest serverRequest) {
         Mono<MultiplyRequestDTO> requestDTOMono = serverRequest.bodyToMono(MultiplyRequestDTO.class);
         Mono<Response> responseMono = this.reactiveMathService.multiply(requestDTOMono);
+        return ServerResponse.ok().body(responseMono, Response.class);
+    }
+
+    public Mono<ServerResponse> squareHandlerWithValidation(ServerRequest serverRequest) {
+        int input = Integer.parseInt(serverRequest.pathVariable("input"));
+        if (input < 10 || input > 20) {
+            return Mono.error(new InputValidationException(input));
+        }
+        Mono<Response> responseMono = this.reactiveMathService.findSquare(input);
         return ServerResponse.ok().body(responseMono, Response.class);
     }
 }
