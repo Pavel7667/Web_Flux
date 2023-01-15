@@ -7,6 +7,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @Slf4j
@@ -25,10 +28,12 @@ public class ReactiveMathService {
      * with some delay
      */
     public Flux<Response> multiplicationTable(int input) {
-        return Flux.range(1, 10)
-                .delayElements(Duration.ofSeconds(1))
-                .doOnNext(i -> log.info("reactive-math-service : " + i))
-                .map(e -> new Response(e * input));
+        List<Response> list = IntStream.rangeClosed(1, 10)
+                .peek(i -> SleepUtil.sleepSeconds(1))
+                .peek(i -> log.info("math-service processing : " + i))
+                .mapToObj(i -> new Response(i * input))
+                .collect(Collectors.toList());
+        return Flux.fromIterable(list);
     }
 
 }
