@@ -5,6 +5,8 @@ import com.webflux.webfluxdemo.dto.InputValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.reactive.function.server.RequestPredicate;
+import org.springframework.web.reactive.function.server.RequestPredicates;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -28,7 +30,10 @@ public class RouterConfig {
 
     public RouterFunction<ServerResponse> serverResponseRouterFunction() {
         return RouterFunctions.route()
-                .GET("square/{input}", requestHandler::squareHandler)
+                .GET("square/{input}",
+                        RequestPredicates.path("*/1?").or(RequestPredicates.path("*/20")),
+                        requestHandler::squareHandler)
+                .GET("square/{input}", request -> ServerResponse.badRequest().bodyValue("only 10--19"))
                 .GET("table/{input}", requestHandler::tableHandler)
                 .GET("table/{input}/stream", requestHandler::tableStreamHandler)
                 .POST("multiply", requestHandler::multiplyHandler)
