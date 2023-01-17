@@ -24,12 +24,32 @@ public class WebClientConfig {
                 .filter(this::sessionToken)
                 .build();
     }
-
+/*
     private Mono<ClientResponse> sessionToken(ClientRequest request, ExchangeFunction exFn) {
         log.info("generating session token");
         ClientRequest clientRequest = ClientRequest
                 .from(request)
                 .headers(h -> h.setBasicAuth("some-length-jwt")).build();
         return exFn.exchange(clientRequest);
+    }*/
+
+    private Mono<ClientResponse> sessionToken(ClientRequest request, ExchangeFunction exFn) {
+        log.info("generating session token");
+        ClientRequest clientRequest = request.attribute("auth")
+                .map(v -> v.equals("basic") ? withBasicAuth(request) : withOAuth(request))
+                .orElse(request);
+        return exFn.exchange(clientRequest);
+    }
+
+    private ClientRequest withBasicAuth(ClientRequest request) {
+        return ClientRequest.from(request)
+                .headers(h -> h.setBasicAuth("username", "password"))
+                .build();
+    }
+
+    private ClientRequest withOAuth(ClientRequest request) {
+        return ClientRequest.from(request)
+                .headers(h -> h.setBearerAuth("some-token"))
+                .build();
     }
 }
