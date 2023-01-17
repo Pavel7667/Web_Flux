@@ -22,7 +22,8 @@ public class HeadersTest extends BaseTest{
                 .post()
                 .uri("reactive_math/multiply")
                 .bodyValue(buildRequestDto(5, 2))
-                .headers((headers)->headers.set("someKey","someValue"))
+//                .headers((headers)->headers.set("someKey","someValue"))
+                .headers(h->h.setBasicAuth("username","password"))
                 .retrieve() // send request and get response
                 .bodyToMono(Response.class)
                 .doOnNext(e -> log.info(String.valueOf(e)));
