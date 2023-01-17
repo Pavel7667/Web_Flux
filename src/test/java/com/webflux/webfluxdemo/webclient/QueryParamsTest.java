@@ -9,6 +9,7 @@ import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 import java.net.URI;
+import java.util.Map;
 
 @Slf4j
 public class QueryParamsTest extends BaseTest {
@@ -24,12 +25,18 @@ public class QueryParamsTest extends BaseTest {
         URI uri = UriComponentsBuilder.fromUriString(queryURL)
                 .build(10, 20);
 */
+
+        Map<String, Integer> map = Map.of(
+                "count", 10,
+                "map", 20
+        );
+
         Flux<Integer> integerFlux = this.webClient
                 .get()
                 .uri(uriBuilder -> uriBuilder
                         .path("jobs/search")
                         .query("count={count}&page={page}")
-                        .build(10, 20))
+                        .build(map))
                 .retrieve()
                 .bodyToFlux(Integer.class)
                 .doOnNext(e -> log.info(String.valueOf(e)));
